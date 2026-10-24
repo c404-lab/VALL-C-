@@ -1,291 +1,51 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock Page</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
-        body {
-            background-color: #8A2BE2; /* Purple Bright */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            transition: background 0.2s;
-        }
-        .container {
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            text-align: center;
-        }
-        .bar {
-            background-color: #111;
-            color: #fff;
-            padding: 18px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s, background-color 0.2s;
-            position: relative;
-        }
-        .bar:active {
-            transform: scale(0.98);
-        }
-        .bar.locked {
-            background-color: #444;
-            color: #888;
-            cursor: not-allowed;
-        }
-        .bar.unlocked {
-            background-color: #28a745;
-            color: #fff;
-        }
-        .hidden {
-            display: none !important;
-        }
-
-        /* Glitch Visual Effect */
-        .glitch-active {
-            animation: glitch-anim 0.1s infinite;
-            filter: invert(1);
-        }
-        @keyframes glitch-anim {
-            0% { transform: translate(0) }
-            20% { transform: translate(-5px, 5px) }
-            40% { transform: translate(-5px, -5px) }
-            60% { transform: translate(5px, 5px) }
-            80% { transform: translate(5px, -5px) }
-            100% { transform: translate(0) }
-        }
-
-        /* Horror Screen Overlay */
-        #horror-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #000;
-            color: #ff0000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 9999;
-            text-shadow: 3px 3px #550000;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REVAL DIE APP</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;margin:0;padding:20px;display:flex;justify-content:center;min-height:100vh}
+.card{background:#fff;padding:30px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08);width:100%;max-width:550px;box-sizing:border-box}
+h2{margin-top:0;color:#1a73e8;text-align:center}
+.subtitle{text-align:center;color:#5f6368;font-size:14px;margin-bottom:25px}
+input{width:100%;padding:14px;font-size:18px;border:2px solid #dadce0;border-radius:8px;box-sizing:border-box;outline:none;letter-spacing:1px}
+input:focus{border-color:#1a73e8}
+button{width:100%;margin-top:15px;padding:14px;background:#1a73e8;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600}
+button:active{background:#1557b0}
+.result-box{background:#f8f9fa;border:1px solid #e8eaed;padding:20px;border-radius:8px;margin-top:20px}
+.result-box h3{margin-top:0;border-bottom:2px solid #1a73e8;padding-bottom:8px}
+.error{color:#d93025;font-weight:600}
+</style>
 </head>
 <body>
-
-    <div class="container" id="main-menu">
-        <div class="bar" id="bar1">OPTION 1</div>
-        <div class="bar" id="bar2">OPTION 2</div>
-        <div class="bar locked" id="bar3">OPTION 3 (LOCKED)</div>
-    </div>
-
-    <div class="container hidden" id="sub-menu-bar1">
-        <div class="bar" id="sub1-tap">TAP 2x TERUS</div>
-        <div class="bar" id="sub1-glitch">EFEEK GLITCH</div>
-    </div>
-
-    <div class="container hidden" id="sub-menu-bar2">
-        <div class="bar" id="btn-unlock-ads">UNLOCK 3 ADS</div>
-        <div class="bar" id="btn-unlock-free">UNLOCK 3 FREE</div>
-    </div>
-
-    <div class="container hidden" id="menu-bar3">
-        <div class="bar" id="btn-download">DOWNLOAD</div>
-        <div class="bar" id="btn-exit">EXIT</div>
-    </div>
-
-    <div id="horror-overlay" class="hidden glitch-active">
-        ARE YOU IDIOT??
-    </div>
-
-    <script>
-        // Web Audio API Synthesizer (Tanpa File Eksternal)
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playGlitchSound(durationSeconds) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const bufferSize = audioCtx.sampleRate * durationSeconds;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = buffer.getChannelData(0);
-            
-            for (let i = 0; i < bufferSize; i++) {
-                output[i] = Math.random() * 2 - 1; // White noise
-            }
-
-            const whiteNoise = audioCtx.createBufferSource();
-            whiteNoise.buffer = buffer;
-
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = 1000;
-
-            whiteNoise.connect(filter);
-            filter.connect(audioCtx.destination);
-
-            whiteNoise.start();
-        }
-
-        function playHarshHorrorSound(durationSeconds) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            const osc1 = audioCtx.createOscillator();
-            const osc2 = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc1.type = 'sawtooth';
-            osc2.type = 'square';
-
-            osc1.frequency.setValueAtTime(120, audioCtx.currentTime); // Low harsh frequency
-            osc2.frequency.setValueAtTime(127, audioCtx.currentTime); // Discordant interval
-
-            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-
-            osc1.connect(gain);
-            osc2.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc1.start();
-            osc2.start();
-
-            setTimeout(() => {
-                osc1.stop();
-                osc2.stop();
-            }, durationSeconds * 1000);
-        }
-
-        // Trigger Glitch Effect
-        function triggerGlitch(durationMs, callback) {
-            document.body.classList.add('glitch-active');
-            playGlitchSound(durationMs / 1000);
-
-            setTimeout(() => {
-                document.body.classList.remove('glitch-active');
-                if (callback) callback();
-            }, durationMs);
-        }
-
-        // Element Selectors
-        const mainMenu = document.getElementById('main-menu');
-        const subMenuBar1 = document.getElementById('sub-menu-bar1');
-        const subMenuBar2 = document.getElementById('sub-menu-bar2');
-        const menuBar3 = document.getElementById('menu-bar3');
-        const horrorOverlay = document.getElementById('horror-overlay');
-
-        const bar1 = document.getElementById('bar1');
-        const bar2 = document.getElementById('bar2');
-        const bar3 = document.getElementById('bar3');
-
-        let bar2Clicks = 0;
-        let isBar3Unlocked = false;
-
-        function showView(view) {
-            mainMenu.classList.add('hidden');
-            subMenuBar1.classList.add('hidden');
-            subMenuBar2.classList.add('hidden');
-            menuBar3.classList.add('hidden');
-            horrorOverlay.classList.add('hidden');
-
-            view.classList.remove('hidden');
-        }
-
-        // BAR 1 Click -> Muncul 2 Bar
-        bar1.addEventListener('click', () => {
-            showView(subMenuBar1);
-        });
-
-        // Sub Bar 1 Logic
-        document.getElementById('sub1-tap').addEventListener('click', () => {
-            // Indikasi interaksi tap
-        });
-
-        document.getElementById('sub1-glitch').addEventListener('click', () => {
-            triggerGlitch(2000, () => {
-                showView(mainMenu);
-            });
-        });
-
-        // BAR 2 Click (Harus 4 Kali)
-        bar2.addEventListener('click', () => {
-            bar2Clicks++;
-            if (bar2Clicks >= 4) {
-                bar2Clicks = 0;
-                showView(subMenuBar2);
-            }
-        });
-
-        // Sub Bar 2: Unlock 3 Ads
-        document.getElementById('btn-unlock-ads').addEventListener('click', () => {
-            triggerGlitch(2000, () => {
-                isBar3Unlocked = true;
-                bar3.classList.remove('locked');
-                bar3.classList.add('unlocked');
-                bar3.innerText = "OPTION 3 (UNLOCKED)";
-                showView(mainMenu);
-            });
-        });
-
-        // Sub Bar 2: Unlock 3 Free
-        document.getElementById('btn-unlock-free').addEventListener('click', () => {
-            triggerGlitch(3000, () => {
-                showView(horrorOverlay);
-                playHarshHorrorSound(3);
-
-                setTimeout(() => {
-                    showView(mainMenu);
-                }, 3000);
-            });
-        });
-
-        // BAR 3 Click
-        bar3.addEventListener('click', () => {
-            if (isBar3Unlocked) {
-                showView(menuBar3);
-            }
-        });
-
-        // Helper untuk download file dummy .txt
-        function downloadJunkFile() {
-            playGlitchSound(0.5);
-            const blob = new Blob(["FILE CORRUPTED / SYSTEM ERROR"], { type: "text/plain" });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `error_${Math.floor(Math.random() * 89999 + 10000)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-        document.getElementById('btn-download').addEventListener('click', downloadJunkFile);
-        document.getElementById('btn-exit').addEventListener('click', downloadJunkFile);
-
-        // Simulasi Penjagaan Navigasi Back Button
-        history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.go(1);
-            downloadJunkFile();
-        };
-    </script>
+<div class="card">
+<h2>REVAL DIE APP</h2>
+<div class="subtitle">Sistem Analisis Data Kependudukan Indonesia - Database Lengkap</div>
+<label>Masukkan 16 Digit NIK:</label>
+<input type="text" id="nikInput" maxlength="16" placeholder="Contoh: 16 Digit NIK">
+<button onclick="prosesNik()">ANALISIS SEKARANG</button>
+<div class="result-box"><h3>Hasil Analisis:</h3><p id="outputText" style="color:#5f6368;font-style:italic;">Silakan ketik NIK lalu klik Analisis...</p></div>
+</div>
+<script>
+const daftarProvinsi={"11":"Aceh","12":"Sumatera Utara","13":"Sumatera Barat","14":"Riau","15":"Jambi","16":"Sumatera Selatan","17":"Bengkulu","18":"Lampung","19":"Kep. Bangka Belitung","21":"Kep. Riau","31":"DKI Jakarta","32":"Jawa Barat","33":"Jawa Tengah","34":"DI Yogyakarta","35":"Jawa Timur","36":"Banten","51":"Bali","52":"NTB","53":"NTT","61":"Kalimantan Barat","62":"Kalimantan Tengah","63":"Kalimantan Selatan","64":"Kalimantan Timur","65":"Kalimantan Utara","71":"Sulawesi Utara","72":"Sulawesi Tengah","73":"Sulawesi Selatan","74":"Sulawesi Tenggara","75":"Gorontalo","76":"Sulawesi Barat","81":"Maluku","82":"Maluku Utara","91":"Papua","92":"Papua Barat"};
+const daftarKabKota={"1101":"Kab. Aceh Selatan","1102":"Kab. Aceh Tenggara","1103":"Kab. Aceh Timur","1104":"Kab. Aceh Tengah","1105":"Kab. Aceh Barat","1106":"Kab. Aceh Besar","1107":"Kab. Pidie","1108":"Kab. Aceh Utara","1109":"Kab. Simeulue","1110":"Kab. Aceh Singkil","1111":"Kab. Bireuen","1112":"Kab. Aceh Barat Daya","1113":"Kab. Gayo Lues","1114":"Kab. Aceh Tamiang","1115":"Kab. Nagan Raya","1116":"Kab. Aceh Jaya","1117":"Kab. Bener Meriah","1118":"Kab. Pidie Jaya","1171":"Kota Banda Aceh","1172":"Kota Sabang","1173":"Kota Langsa","1174":"Kota Lhokseumawe","1175":"Kota Subulussalam","1201":"Kab. Nias","1202":"Kab. Mandailing Natal","1203":"Kab. Tapanuli Selatan","1204":"Kab. Tapanuli Tengah","1205":"Kab. Tapanuli Utara","1206":"Kab. Toba Samosir","1207":"Kab. Deli Serdang","1208":"Kab. Karo","1209":"Kab. Simalungun","1210":"Kab. Asahan","1211":"Kab. Labuhanbatu","1212":"Kab. Dairi","1213":"Kab. Toba","1215":"Kab. Nias Selatan","1216":"Kab. Pakpak Bharat","1217":"Kab. Humbang Hasundutan","1218":"Kab. Samosir","1219":"Kab. Serdang Bedagai","1220":"Kab. Batu Bara","1221":"Kab. Padang Lawas Utara","1222":"Kab. Padang Lawas","1223":"Kab. Labuhanbatu Selatan","1224":"Kab. Labuhanbatu Utara","1225":"Kab. Nias Utara","1226":"Kab. Nias Barat","1271":"Kota Medan","1272":"Kota Pematangsiantar","1273":"Kota Sibolga","1274":"Kota Tanjungbalai","1275":"Kota Binjai","1276":"Kota Tebing Tinggi","1277":"Kota Padangsidimpuan","1278":"Kota Gunungsitoli","1301":"Kab. Pesisir Selatan","1302":"Kab. Solok","1303":"Kab. Sijunjung","1304":"Kab. Tanah Datar","1305":"Kab. Padang Pariaman","1306":"Kab. Agam","1307":"Kab. Lima Puluh Kota","1308":"Kab. Pasaman","1309":"Kab. Kep. Mentawai","1310":"Kab. Dharmasraya","1311":"Kab. Solok Selatan","1312":"Kab. Pasaman Barat","1371":"Kota Padang","1372":"Kota Solok","1373":"Kota Sawah Lunto","1374":"Kota Padang Panjang","1375":"Kota Bukittinggi","1376":"Kota Payakumbuh","1377":"Kota Pariaman","1401":"Kab. Kampar","1402":"Kab. Indragiri Hulu","1403":"Kab. Indragiri Hilir","1404":"Kab. Pelalawan","1405":"Kab. Siak","1407":"Kab. Rokan Hulu","1408":"Kab. Bengkalis","1409":"Kab. Rokan Hilir","1410":"Kab. Kep. Meranti","1471":"Kota Pekanbaru","1473":"Kota Dumai","1501":"Kab. Kerinci","1502":"Kab. Merangin","1503":"Kab. Sarolangun","1504":"Kab. Batanghari","1505":"Kab. Muaro Jambi","1506":"Kab. Tanjung Jabung Barat","1507":"Kab. Tanjung Jabung Timur","1508":"Kab. Bungo","1509":"Kab. Tebo","1571":"Kota Jambi","1572":"Kota Sungai Penuh","1601":"Kab. Ogan Komering Ulu","1602":"Kab. Ogan Komering Ilir","1603":"Kab. Muara Enim","1604":"Kab. Lahat","1605":"Kab. Musi Rawas","1606":"Kab. Musi Banyuasin","1607":"Kab. Banyuasin","1608":"Kab. OKU Timur","1609":"Kab. OKU Selatan","1610":"Kab. Ogan Ilir","1611":"Kab. Empat Lawang","1612":"Kab. PALI","1613":"Kab. Musi Rawas Utara","1671":"Kota Palembang","1672":"Kota Pagar Alam","1673":"Kota Lubuklinggau","1674":"Kota Prabumulih","1701":"Kab. Bengkulu Selatan","1702":"Kab. Rejang Lebong","1703":"Kab. Bengkulu Utara","1704":"Kab. Kaur","1705":"Kab. Seluma","1706":"Kab. Mukomuko","1707":"Kab. Lebong","1708":"Kab. Kepahiang","1709":"Kab. Bengkulu Tengah","1771":"Kota Bengkulu","1801":"Kab. Lampung Selatan","1802":"Kab. Lampung Tengah","1803":"Kab. Lampung Utara","1804":"Kab. Lampung Barat","1805":"Kab. Tulang Bawang","1806":"Kab. Tanggamus","1807":"Kab. Lampung Timur","1808":"Kab. Way Kanan","1809":"Kab. Pesawaran","1810":"Kab. Pringsewu","1811":"Kab. Mesuji","1812":"Kab. Tulang Bawang Barat","1813":"Kab. Pesisir Barat","1871":"Kota Bandar Lampung","1872":"Kota Metro","1901":"Kab. Bangka","1902":"Kab. Belitung","1903":"Kab. Bangka Selatan","1904":"Kab. Bangka Tengah","1905":"Kab. Bangka Barat","1906":"Kab. Belitung Timur","1971":"Kota Pangkalpinang","2101":"Kab. Bintan","2102":"Kab. Karimun","2103":"Kab. Natuna","2104":"Kab. Lingga","2105":"Kab. Kep. Anambas","2171":"Kota Batam","2172":"Kota Tanjungpinang","3101":"Kab. Kep. Seribu","3171":"Jakarta Pusat","3172":"Jakarta Utara","3173":"Jakarta Barat","3174":"Jakarta Selatan","3175":"Jakarta Timur","3201":"Kab. Bogor","3202":"Kab. Sukabumi","3203":"Kab. Cianjur","3204":"Kab. Bandung","3205":"Kab. Garut","3206":"Kab. Tasikmalaya","3207":"Kab. Ciamis","3208":"Kab. Kuningan","3209":"Kab. Cirebon","3210":"Kab. Majalengka","3211":"Kab. Sumedang","3212":"Kab. Indramayu","3213":"Kab. Subang","3214":"Kab. Purwakarta","3215":"Kab. Karawang","3216":"Kab. Bekasi","3217":"Kab. Bandung Barat","3218":"Kab. Pangandaran","3271":"Kota Bogor","3272":"Kota Sukabumi","3273":"Kota Bandung","3274":"Kota Cirebon","3275":"Kota Bekasi","3276":"Kota Depok","3277":"Kota Cimahi","3278":"Kota Tasikmalaya","3279":"Kota Banjar","3301":"Kab. Cilacap","3302":"Kab. Banyumas","3303":"Kab. Purbalingga","3304":"Kab. Banjarnegara","3305":"Kab. Kebumen","3306":"Kab. Purworejo","3307":"Kab. Wonosobo","3308":"Kab. Magelang","3309":"Kab. Boyolali","3310":"Kab. Klaten","3311":"Kab. Sukoharjo","3312":"Kab. Wonogiri","3313":"Kab. Karanganyar","3314":"Kab. Sragen","3315":"Kab. Grobogan","3316":"Kab. Blora","3317":"Kab. Rembang","3318":"Kab. Pati","3319":"Kab. Kudus","3320":"Kab. Jepara","3321":"Kab. Demak","3322":"Kab. Semarang","3323":"Kab. Temanggung","3324":"Kab. Kendal","3325":"Kab. Batang","3326":"Kab. Pekalongan","3327":"Kab. Pemalang","3328":"Kab. Tegal","3329":"Kab. Brebes","3371":"Kota Magelang","3372":"Kota Surakarta","3373":"Kota Salatiga","3374":"Kota Semarang","3375":"Kota Pekalongan","3376":"Kota Tegal","3401":"Kab. Kulon Progo","3402":"Kab. Bantul","3403":"Kab. Gunungkidul","3404":"Kab. Sleman","3471":"Kota Yogyakarta","3501":"Kab. Pacitan","3502":"Kab. Ponorogo","3503":"Kab. Trenggalek","3504":"Kab. Tulungagung","3505":"Kab. Blitar","3506":"Kab. Kediri","3507":"Kab. Malang","3508":"Kab. Lumajang","3509":"Kab. Jember","3510":"Kab. Banyuwangi","3511":"Kab. Bondowoso","3512":"Kab. Situbondo","3513":"Kab. Probolinggo","3514":"Kab. Pasuruan","3515":"Kab. Sidoarjo","3516":"Kab. Mojokerto","3517":"Kab. Jombang","3518":"Kab. Nganjuk","3519":"Kab. Madiun","3520":"Kab. Magetan","3521":"Kab. Ngawi","3522":"Kab. Bojonegoro","3523":"Kab. Tuban","3524":"Kab. Lamongan","3525":"Kab. Gresik","3526":"Kab. Bangkalan","3527":"Kab. Sampang","3528":"Kab. Pamekasan","3529":"Kab. Sumenep","3571":"Kota Kediri","3572":"Kota Blitar","3573":"Kota Malang","3574":"Kota Probolinggo","3575":"Kota Pasuruan","3576":"Kota Mojokerto","3577":"Kota Madiun","3578":"Kota Surabaya","3579":"Kota Batu","3601":"Kab. Pandeglang","3602":"Kab. Lebak","3603":"Kab. Tangerang","3604":"Kab. Serang","3671":"Kota Tangerang","3672":"Kota Cilegon","3673":"Kota Serang","3674":"Kota Tangerang Selatan","5101":"Kab. Jembrana","5102":"Kab. Tabanan","5103":"Kab. Badung","5104":"Kab. Gianyar","5105":"Kab. Klungkung","5106":"Kab. Bangli","5107":"Kab. Karangasem","5108":"Kab. Buleleng","5171":"Kota Denpasar","5201":"Kab. Lombok Barat","5202":"Kab. Lombok Tengah","5203":"Kab. Lombok Timur","5204":"Kab. Sumbawa","5205":"Kab. Dompu","5206":"Kab. Bima","5207":"Kab. Sumbawa Barat","5208":"Kab. Lombok Utara","5271":"Kota Mataram","5272":"Kota Bima","5301":"Kab. Kupang","5302":"Kab. TTS","5303":"Kab. TTU","5304":"Kab. Belu","5305":"Kab. Alor","5306":"Kab. Flores Timur","5307":"Kab. Sikka","5308":"Kab. Ende","5309":"Kab. Ngada","5310":"Kab. Manggarai","5311":"Kab. Sumba Timur","5312":"Kab. Sumba Barat","5313":"Kab. Lembata","5314":"Kab. Rote Ndao","5315":"Kab. Manggarai Barat","5316":"Kab. Nagekeo","5317":"Kab. Sumba Tengah","5318":"Kab. Sumba Barat Daya","5319":"Kab. Manggarai Timur","5320":"Kab. Sabu Raijua","5321":"Kab. Malaka","5371":"Kota Kupang","6101":"Kab. Sambas","6102":"Kab. Mempawah","6103":"Kab. Sanggau","6104":"Kab. Ketapang","6105":"Kab. Sintang","6106":"Kab. Kapuas Hulu","6107":"Kab. Bengkayang","6108":"Kab. Landak","6109":"Kab. Sekadau","6110":"Kab. Melawi","6111":"Kab. Kayong Utara","6112":"Kab. Kubu Raya","6171":"Kota Pontianak","6172":"Kota Singkawang","6201":"Kab. Kotawaringin Barat","6202":"Kab. Kotawaringin Timur","6203":"Kab. Kapuas","6204":"Kab. Barito Selatan","6205":"Kab. Barito Utara","6206":"Kab. Sukamara","6207":"Kab. Lamandau","6208":"Kab. Seruyan","6209":"Kab. Katingan","6210":"Kab. Pulang Pisau","6211":"Kab. Gunung Mas","6212":"Kab. Barito Timur","6213":"Kab. Murung Raya","6271":"Kota Palangka Raya","6301":"Kab. Tanah Laut","6302":"Kab. Kotabaru","6303":"Kab. Banjar","6304":"Kab. Barito Kuala","6305":"Kab. Tapin","6306":"Kab. Hulu Sungai Selatan","6307":"Kab. Hulu Sungai Tengah","6308":"Kab. Hulu Sungai Utara","6309":"Kab. Tabalong","6310":"Kab. Tanah Bumbu","6311":"Kab. Balangan","6371":"Kota Banjarmasin","6372":"Kota Banjarbaru","6401":"Kab. Paser","6402":"Kab. Kutai Kartanegara","6403":"Kab. Berau","6407":"Kab. Kutai Barat","6408":"Kab. Kutai Timur","6409":"Kab. Penajam Paser Utara","6411":"Kab. Mahakam Ulu","6471":"Kota Samarinda","6472":"Kota Balikpapan","6474":"Kota Bontang","6501":"Kab. Malinau","6502":"Kab. Bulungan","6503":"Kab. Tana Tidung","6504":"Kab. Nunukan","6571":"Kota Tarakan","7101":"Kab. Bolaang Mongondow","7102":"Kab. Minahasa","7103":"Kab. Sangihe","7104":"Kab. Talaud","7105":"Kab. Minahasa Selatan","7106":"Kab. Minahasa Utara","7107":"Kab. Bolmong Utara","7108":"Kab. Sitaro","7109":"Kab. Minahasa Tenggara","7110":"Kab. Bolmong Selatan","7111":"Kab. Bolmong Timur","7171":"Kota Manado","7172":"Kota Bitung","7173":"Kota Tomohon","7174":"Kota Kotamobagu","7201":"Kab. Banggai Kepulauan","7202":"Kab. Banggai","7203":"Kab. Morowali","7204":"Kab. Poso","7205":"Kab. Donggala","7206":"Kab. Toli-Toli","7207":"Kab. Buol","7208":"Kab. Parigi Moutong","7209":"Kab. Tojo Una-Una","7210":"Kab. Sigi","7211":"Kab. Banggai Laut","7212":"Kab. Morowali Utara","7271":"Kota Palu","7301":"Kab. Selayar","7302":"Kab. Bulukumba","7303":"Kab. Bantaeng","7304":"Kab. Jeneponto","7305":"Kab. Takalar","7306":"Kab. Gowa","7307":"Kab. Sinjai","7308":"Kab. Maros","7309":"Kab. Pangkep","7310":"Kab. Barru","7311":"Kab. Bone","7312":"Kab. Soppeng","7313":"Kab. Wajo","7314":"Kab. Sidrap","7315":"Kab. Pinrang","7316":"Kab. Enrekang","7317":"Kab. Luwu","7318":"Kab. Tana Toraja","7322":"Kab. Luwu Utara","7325":"Kab. Luwu Timur","7326":"Kab. Toraja Utara","7371":"Kota Makassar","7372":"Kota Parepare","7373":"Kota Palopo","7401":"Kab. Kolaka","7402":"Kab. Konawe","7403":"Kab. Muna","7404":"Kab. Buton","7405":"Kab. Konawe Selatan","7406":"Kab. Bombana","7407":"Kab. Wakatobi","7408":"Kab. Kolaka Utara","7409":"Kab. Buton Utara","7410":"Kab. Konawe Utara","7411":"Kab. Kolaka Timur","7412":"Kab. Konawe Kepulauan","7413":"Kab. Muna Barat","7414":"Kab. Buton Tengah","7415":"Kab. Buton Selatan","7471":"Kota Kendari","7472":"Kota Baubau","7501":"Kab. Boalemo","7502":"Kab. Gorontalo","7503":"Kab. Pohuwato","7504":"Kab. Bone Bolango","7505":"Kab. Gorontalo Utara","7571":"Kota Gorontalo","7601":"Kab. Majene","7602":"Kab. Polewali Mandar","7603":"Kab. Mamasa","7604":"Kab. Mamuju","7605":"Kab. Pasangkayu","7606":"Kab. Mamuju Tengah","8101":"Kab. Maluku Tenggara Barat","8102":"Kab. Maluku Tenggara","8103":"Kab. Maluku Tengah","8104":"Kab. Buru","8105":"Kab. Kep. Aru","8106":"Kab. Seram Bagian Barat","8107":"Kab. Seram Bagian Timur","8108":"Kab. Maluku Barat Daya","8109":"Kab. Buru Selatan","8171":"Kota Ambon","8172":"Kota Tual","8201":"Kab. Halmahera Barat","8202":"Kab. Halmahera Tengah","8203":"Kab. Kep. Sula","8204":"Kab. Halmahera Selatan","8205":"Kab. Halmahera Utara","8206":"Kab. Halmahera Timur","8207":"Kab. Morotai","8208":"Kab. Pulau Taliabu","8271":"Kota Ternate","8272":"Kota Tidore Kepulauan","9101":"Kab. Merauke","9102":"Kab. Jayawijaya","9103":"Kab. Jayapura","9104":"Kab. Nabire","9105":"Kab. Kep. Yapen","9106":"Kab. Biak Numfor","9109":"Kab. Paniai","9110":"Kab. Puncak Jaya","9111":"Kab. Mimika","9112":"Kab. Boven Digoel","9113":"Kab. Mappi","9114":"Kab. Asmat","9115":"Kab. Yahukimo","9116":"Kab. Pegunungan Bintang","9117":"Kab. Tolikara","9118":"Kab. Sarmi","9119":"Kab. Keerom","9120":"Kab. Waropen","9121":"Kab. Supiori","9122":"Kab. Mamberamo Raya","9126":"Kab. Mamberamo Tengah","9127":"Kab. Yalimo","9128":"Kab. Lanny Jaya","9129":"Kab. Nduga","9130":"Kab. Puncak","9131":"Kab. Dogiyai","9132":"Kab. Intan Jaya","9133":"Kab. Deiyai","9171":"Kota Jayapura","9201":"Kab. Fakfak","9202":"Kab. Kaimana","9203":"Kab. Teluk Wondama","9204":"Kab. Teluk Bintuni","9205":"Kab. Manokwari","9206":"Kab. Sorong Selatan","9207":"Kab. Sorong","9208":"Kab. Raja Ampat","9209":"Kab. Tambrauw","9210":"Kab. Maybrat","9211":"Kab. Manokwari Selatan","9212":"Kab. Peg. Arfak","9271":"Kota Sorong"};
+const namaBulan=["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+function prosesNik(){
+ const nik=document.getElementById('nikInput').value.trim();
+ const output=document.getElementById('outputText');
+ if(nik.length!==16){output.innerHTML='<span class="error">NIK harus 16 digit! Saat ini '+nik.length+'</span>';return;}
+ if(!/^\d+$/.test(nik)){output.innerHTML='<span class="error">NIK hanya angka!</span>';return;}
+ const kodeProv=nik.substring(0,2); const kodeKab=nik.substring(0,4); const kodeKec=nik.substring(4,6);
+ let tgl=nik.substring(6,8); const bln=nik.substring(8,10); const thn=nik.substring(10,12); const urut=nik.substring(12,16);
+ const prov=daftarProvinsi[kodeProv]||"Tidak Dikenal ("+kodeProv+")";
+ const kab=daftarKabKota[kodeKab]||"Kode: "+kodeKab;
+ let tglInt=parseInt(tgl,10); let jk="Laki-laki"; if(tglInt>40){jk="Perempuan"; tglInt-=40;}
+ const bIndex=parseInt(bln,10); const bNama=(bIndex>=1&&bIndex<=12)?namaBulan[bIndex]:"Bulan Invalid";
+ const thInt=parseInt(thn,10); const thLengkap=(thInt<=26)?"20"+thn:"19"+thn;
+ output.innerHTML='<h3>Hasil Analisis:</h3><ul><li><b>Provinsi:</b> '+prov+'</li><li><b>Kab/Kota:</b> '+kab+'</li><li><b>Kec (Kode):</b> '+kodeKec+'</li><li><b>Gender:</b> '+jk+'</li><li><b>Lahir:</b> '+tglInt+' '+bNama+' '+thLengkap+'</li><li><b>No Urut:</b> '+urut+'</li></ul>';
+}
+document.getElementById('nikInput').addEventListener('input',prosesNik);
+</script>
 </body>
 </html>
